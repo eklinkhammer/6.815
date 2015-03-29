@@ -6,7 +6,32 @@ using namespace std;
 
 // PS06: apply homography
 void applyhomography(const Image &source, Image &out, Matrix &H, bool bilinear) {
-  // do something :)
+  int width = out.width();
+  int height = out.height();
+
+  Matrix inverseH = H.inverse();
+  float m[3];
+  m[2] = 1;
+  float xPos, yPos;
+
+  // For all output pixels, find the corresponding homography pixels
+  // If those pixels exist in the source image, replace the output ones
+  for (int i = 0; i < width; i++) {
+    m[0] = i;
+    for (int j = 0; j < height; j++) {
+      m[1] = j;
+      Matrix output(1,3,m);
+      Matrix input = inverseH.multiply(output);
+      xPos = input(0,0) / input(0,2);
+      yPos = input(0,1) / input(0,2);
+      if (pixelInFrame(source, xPos, yPos)) {
+        copyAllChannels(source, out, xPos, yPos, i, j, bilinear);
+        // for (int c = 0; c < source.channels(); c++) {
+        //   out(i,j,c) = source.smartAccessor(xPos,yPos,c,bilinear);
+        // }
+      }
+    }
+  }
 }
 
 // PS06: 6.865 or extra credit: apply homography fast
