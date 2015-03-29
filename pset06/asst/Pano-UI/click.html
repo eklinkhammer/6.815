@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Untitled Document</title>
+</head>
+
+<body>
+        <script src="raphael-min.js"></script>
+
+<script>
+
+imagewidth=200
+imageheight=300
+path1='../Input/boston-skyline-1.png'
+path2='../Input/boston-skyline-2.png'
+
+var paper = Raphael(0, 0, 1000, 400);
+
+lastx1=0
+lasty1=0
+
+count1=0
+lastx2=0
+lasty2=0
+
+count2=0
+
+cornerx1=10
+cornery=10
+cornerx2= 500
+
+
+points1 = [''];
+points1N = 0;
+points2 = [''];
+points2N = 0;
+
+    
+function doSomething1(e) {
+	var posx = 0;
+	var posy = 0;
+	if (!e) var e = window.event;
+	if (e.pageX || e.pageY) 	{
+		posx = e.pageX;
+		posy = e.pageY;
+	}
+	else if (e.clientX || e.clientY) 	{
+		posx = e.clientX + document.body.scrollLeft
+			+ document.documentElement.scrollLeft;
+		posy = e.clientY + document.body.scrollTop
+			+ document.documentElement.scrollTop;
+	}
+	// posx and posy contain the mouse position relative to the document
+	// Do something with this information
+var ci=paper.circle(posx,posy, 5).attr({fill: "#000"});
+if (count1>0){
+  //var L=paper.path("M"+lastx1+" "+lasty1+" L"+posx+" "+posy);
+};
+    /*
+  S=document.getElementById("seg1").innerHTML
+  S=S.substring(0, S.length-1)
+if (count1>0) S=S+", "
+  S2=S+"np.array(["+(posy-cornery)+", "+(posx-cornerx1)+", 1], dtype=np.float64)]"
+  document.getElementById("seg1").innerHTML=S2
+*/
+lastx1=posx;
+lasty1=posy;
+count1=count1+1;
+    
+points1[points1N] = ''+(posx-cornerx1)+","+(posy-cornery)+",1";
+points1N++;
+document.getElementById("points").innerHTML=getString();
+}
+
+function doSomething2(e) {
+	var posx = 0;
+	var posy = 0;
+	if (!e) var e = window.event;
+	if (e.pageX || e.pageY) 	{
+		posx = e.pageX;
+		posy = e.pageY;
+	}
+	else if (e.clientX || e.clientY) 	{
+		posx = e.clientX + document.body.scrollLeft
+			+ document.documentElement.scrollLeft;
+		posy = e.clientY + document.body.scrollTop
+			+ document.documentElement.scrollTop;
+	}
+	// posx and posy contain the mouse position relative to the document
+	// Do something with this information
+var ci=paper.circle(posx,posy, 5).attr({fill: "#000"});
+if (count2>0){
+  //var L=paper.path("M"+lastx2+" "+lasty2+" L"+posx+" "+posy);
+}
+    /*
+  S=document.getElementById("seg2").innerHTML
+  S=S.substring(0, S.length-1)
+  if (count2>0) S=S+", "
+  S2=S+"np.array(["+(posy-cornery)+", "+(posx-cornerx2)+", 1], dtype=np.float64)]"
+  document.getElementById("seg2").innerHTML=S2
+*/
+lastx2=posx;
+lasty2=posy;
+count2=count2+1;
+
+points2[points2N] = ''+(posx-cornerx2)+","+(posy-cornery)+",1";
+points2N++;
+document.getElementById("points").innerHTML=getString();
+}
+
+var bfg=paper.image(path1, cornerx1, cornery, imagewidth, imageheight)
+bfg.click(doSomething1);
+var bfg2=paper.image(path2, cornerx2, cornery, imagewidth, imageheight)
+bfg2.click(doSomething2);
+
+function getString() {
+    var S = "{<br />";
+    var maxpointsN = Math.max(points1N, points2N);
+    
+    for (var i = 0; i < maxpointsN; i++) {
+        S = S + "{{"
+        if (i < points1N) S += points1[i];
+        S += "},{"    
+        if (i < points2N) S += points2[i];
+        S += "}}, <br />"
+    }
+    S += "};"
+    return S;
+}
+
+</script>
+
+    <!--
+<table width="800" border="0">
+  <tr >
+    <td height ="600" >&nbsp;</td>
+    <td height ="600" >&nbsp;</td>
+  </tr>
+  <tr>
+    <td width=500><p id="seg1"> pointList1=[]</p>
+    <p id="seg2"> pointList2=[]</p>
+    listOfPairs=zip(pointList1, pointList2)
+  </tr>
+</table>-->
+
+<div id="points" style="margin-top:400px">
+    
+</div>
+    
+<p id="debug"></p>
+
+</body>
+</html>
+
+
