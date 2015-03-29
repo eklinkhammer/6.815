@@ -26,9 +26,6 @@ void applyhomography(const Image &source, Image &out, Matrix &H, bool bilinear) 
       yPos = input(0,1) / input(0,2);
       if (pixelInFrame(source, xPos, yPos)) {
         copyAllChannels(source, out, xPos, yPos, i, j, bilinear);
-        // for (int c = 0; c < source.channels(); c++) {
-        //   out(i,j,c) = source.smartAccessor(xPos,yPos,c,bilinear);
-        // }
       }
     }
   }
