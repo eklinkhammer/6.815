@@ -122,12 +122,51 @@ void addConstraint(Matrix &systm,  int i, const float constr[2][3]) {
 // PS06: compute a transformed bounding box
 // returns [xmin xmax ymin ymax]
 vector<float> computeTransformedBBox(int imwidth, int imheight, Matrix H) {
-  // fix me!
-  float[] topLeft = {0,0,1};
-  float[] topRight = {0,imwidth-1,1};
-  float[]
-  Matrix output(1,3,m);
+  // Put 4 corners of image into Matrix form
+  float topLeft[3] = {0,0,1};
+  float topRight[3] = {0,(float)(imheight-1),1};
+  float bottomLeft[3] = {(float)(imwidth-1),0,1};
+  float bottomRight[3] = {(float)(imwidth-1),(float)(imheight-1),1};
+  Matrix tL(1,3,topLeft);
+  Matrix tR(1,3,topRight);
+  Matrix bL(1,3,bottomLeft);
+  Matrix bR(1,3,bottomRight);
+  
+  // Transform the 4 corners
+  Matrix tLT = H.multiply(tL);
+  Matrix tRT = H.multiply(tR);
+  Matrix bLT = H.multiply(bL);
+  Matrix bRT = H.multiply(bR);
+
+  // Homogenize the vectors 
+  Matrix topL = homogenize(tLT);
+  Matrix topR = homogenize(tRT);
+  Matrix botL = homogenize(bLT);
+  Matrix botR = homogenize(bRT);
+
+  float xmin, xmax, ymin, ymax;
+  vector<float> xs;
+  xs.push_back(topL(0,0));
+  xs.push_back(topR(0,0));
+  xs.push_back(botL(0,0));
+  xs.push_back(botR(0,0));
+
+  vector<float> ys;
+  ys.push_back(topL(0,1));
+  ys.push_back(topR(0,1));
+  ys.push_back(botL(0,1));
+  ys.push_back(botR(0,1));
+
+  xmin = min_vec_elem(xs);
+  xmax = max_vec_elem(xs);
+  ymin = min_vec_elem(ys);
+  ymax = max_vec_elem(ys);
+
   vector <float> minmax;
+  minmax.push_back(xmin);
+  minmax.push_back(xmax);
+  minmax.push_back(ymin);
+  minmax.push_back(ymax);
   return minmax;
 }
 
@@ -136,18 +175,40 @@ vector<float> computeTransformedBBox(int imwidth, int imheight, Matrix H) {
 // computeTransformedBBox()
 Matrix homogenize(Matrix &v) {
   // TODO: homogenize vector v here.
-  return Matrix(1, 3); // fix me
+  Matrix x(1,3);
+  x(0,0) = v(0,0) / v(0,2);
+  x(0,1) = v(0,1) / v(0,2);
+  x(0,2) = 1;
+  return x; // fix me
 }
 
 // PS06: compute a 3x3 translation Matrix
 Matrix translate(vector<float> B) {
-  return Matrix(3, 3); // fix me
+  float tx = -1*B[0];
+  float ty = -1*B[2];
+  
+  float data[9] = {
+    1, 0, tx,
+    0, 1, ty,
+    0, 0, 1
+  };
+  Matrix trans(3,3,data);
+  return trans; 
 }
 
 // PS06: compute the union of two bounding boxes
 vector <float> bboxUnion(vector<float> B1, vector<float> B2) {
   vector<float> B;
-  return B; // fix me
+  float xmin, xmax, ymin, ymax;
+  xmin = B1[0] > B2[0] ? B2[0] : B1[0];
+  xmax = B1[1] > B2[1] ? B1[1] : B2[1];
+  ymin = B1[2] > B2[2] ? B2[2] : B1[2];
+  ymax = B1[3] > B2[3] ? B1[3] : B2[3];
+  B.push_back(xmin);
+  B.push_back(xmax);
+  B.push_back(ymin);
+  B.push_back(ymax);
+  return B; 
 }
 
 // PS06: stitch two images given a list or 4 point pairs
