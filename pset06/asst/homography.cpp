@@ -123,6 +123,10 @@ void addConstraint(Matrix &systm,  int i, const float constr[2][3]) {
 // returns [xmin xmax ymin ymax]
 vector<float> computeTransformedBBox(int imwidth, int imheight, Matrix H) {
   // fix me!
+  float[] topLeft = {0,0,1};
+  float[] topRight = {0,imwidth-1,1};
+  float[]
+  Matrix output(1,3,m);
   vector <float> minmax;
   return minmax;
 }
