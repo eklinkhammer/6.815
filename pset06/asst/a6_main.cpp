@@ -210,11 +210,11 @@ void testStitchBostonSkyline() {
 // Your code **has to compile** on the submission system with all of the test cases
 // uncommented! We will not grade the contents of this main function
 int main() {
-    testMatrixClass();  //  this should just work.
+    //testMatrixClass();  //  this should just work.
 
     // uncomment these test functions as you complete the assignment
     
-    // testApplyHomography();         // test applying homographies
+    testApplyHomography();         // test applying homographies
     // testComputeHomographyPoster(); // test compuing poster homography
     // testComputeTransformedBBox();  // test bounding box transformation
     // testTranslate();           // test translate Matrix

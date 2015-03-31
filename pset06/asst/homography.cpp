@@ -41,11 +41,83 @@ void applyhomographyFast(const Image &source, Image &out, Matrix &H, bool biline
 
 // PS06: compute homography given a list of point pairs
 Matrix computeHomography(const float listOfPairs[4][2][3]) {
-  return Matrix(3, 3); // fix me!
+  /* 
+  xa + yb + c = x'(xg + xh + i) => xa + yb + c - x'xg - x'yh - x'i = 0
+  xd + ye + f = y'(xg + yh + i) => xd + ye + f - y'xg - y'yh - y'i = 0
+
+  Letting i = 0
+  xa + yb + c - x'xg - x'yh = x'
+  xd + ye + f - y'xg - y'yh = y'
+
+  Ax = b
+  | x y 1 0 0 0 -xx' -yx' | |a|   |x'| 
+  | 0 0 0 x y 1 -xy' -yy' | |b|   |y'|
+  | x y 1 0 0 0 -xx' -yx' | |c|   |x'|
+  | 0 0 0 x y 1 -xy' -yy' | |d| = |y'|
+  | x y 1 0 0 0 -xx' -yx' | |e|   |x'|
+  | 0 0 0 x y 1 -xy' -yy' | |f|   |y'|
+  | x y 1 0 0 0 -xx' -yx' | |g|   |x'|
+  | 0 0 0 x y 1 -xy' -yy' | |h|   |y'|
+
+  x = inverse(A)*b
+  */
+  Matrix systm(8,8);
+  for (int i = 0; i < 4; i++) {
+    addConstraint(systm, i*2, listOfPairs[i]);
+  }
+
+  Matrix b (1,8);
+  b(0,0) = listOfPairs[0][1][0];
+  b(0,1) = listOfPairs[0][1][1];
+
+  b(0,2) = listOfPairs[1][1][0];
+  b(0,3) = listOfPairs[1][1][1];
+
+  b(0,4) = listOfPairs[2][1][0];
+  b(0,5) = listOfPairs[2][1][1];
+
+  b(0,6) = listOfPairs[3][1][0];
+  b(0,7) = listOfPairs[3][1][1];
+  Matrix x = systm.inverse().multiply(b);
+  Matrix result (3,3);
+  result(0,0) = x(0,0);
+  result(1,0) = x(0,1);
+  result(2,0) = x(0,2);
+  result(0,1) = x(0,3);
+  result(1,1) = x(0,4);
+  result(2,1) = x(0,5);
+  result(0,2) = x(0,6);
+  result(1,2) = x(0,7);
+  result(2,2) = 1;
+  return result;
 }
 
 // PS06: optional function that might help in computeHomography
-void addConstraint(Matrix &systm,  int i, const float constr[2][3]) {}
+// i is the row that the constraints will be added
+// i must be an even number
+void addConstraint(Matrix &systm,  int i, const float constr[2][3]) {
+  float x, y, xp, yp;
+  x = constr[0][0];
+  xp = constr[1][0];
+  y = constr[0][1];
+  yp = constr[1][1];
+  systm(0,i)   = x;
+  systm(1,i)   = y;
+  systm(2,i)   = 1;
+  systm(3,i)   = 0;
+  systm(4,i)   = 0;
+  systm(5,i)   = 0;
+  systm(6,i)   = -x*xp;
+  systm(7,i)   = -y*xp;
+  systm(0,i+1) = 0;
+  systm(1,i+1) = 0;
+  systm(2,i+1) = 0;
+  systm(3,i+1) = x;
+  systm(4,i+1) = y;
+  systm(5,i+1) = 1;
+  systm(6,i+1) = -x*yp;
+  systm(7,i+1) = -y*yp;
+}
 
 // PS06: compute a transformed bounding box
 // returns [xmin xmax ymin ymax]
