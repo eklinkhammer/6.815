@@ -186,7 +186,7 @@ Matrix homogenize(Matrix &v) {
 Matrix translate(vector<float> B) {
   float tx = -1*B[0];
   float ty = -1*B[2];
-  
+
   float data[9] = {
     1, 0, tx,
     0, 1, ty,
@@ -213,7 +213,32 @@ vector <float> bboxUnion(vector<float> B1, vector<float> B2) {
 
 // PS06: stitch two images given a list or 4 point pairs
 Image stitch(const Image &im1, const Image &im2, const float listOfPairs[4][2][3]) {
-  return Image(0); // fix me!
+  Matrix H = computeHomography(listOfPairs);
+  vector<float> bbox1 = computeTransformedBBox(im1.width(),im1.height(),H);
+  vector<float> bbox2;
+  bbox2.push_back(0.0);
+  bbox2.push_back( (float)(im2.width() - 1) );
+  bbox2.push_back(0.0);
+  bbox2.push_back( (float)(im2.height() - 1) );
+
+  vector<float> bBox = bboxUnion(bbox1, bbox2);
+
+  Matrix T = translate(bBox);
+  float tx = T(2,0);
+  float ty = T(2,1);
+
+  int im3Height = bBox[3] + (int) ty;
+  int im3Width = bBox[1] + (int) tx;
+  Image im3(im3Width, im3Height,im1.channels());
+
+  Matrix TH = T.multiply(H);
+
+  im3.debug_write();
+  applyhomography(im2, im3, T, true);
+  im3.debug_write();
+  applyhomography(im1, im3, TH, true);
+  im3.debug_write();
+  return im3;
 }
 
 // PS06: useful for bounding-box debugging.
