@@ -214,8 +214,8 @@ int main() {
 
     // uncomment these test functions as you complete the assignment
     
-    testApplyHomography();         // test applying homographies
-    // testComputeHomographyPoster(); // test compuing poster homography
+    //testApplyHomography();         // test applying homographies
+     testComputeHomographyPoster(); // test compuing poster homography
     // testComputeTransformedBBox();  // test bounding box transformation
     // testTranslate();           // test translate Matrix
     // testBBoxUnion();           // test union of bounding boxes
