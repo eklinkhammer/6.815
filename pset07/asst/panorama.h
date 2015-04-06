@@ -61,6 +61,8 @@ private:
 };
 
 // Pset07: Harris Corners
+void zeroOrMax(Image &R, float maxiDiam);
+void excludeCorners(Image &im, float boundarySize);
 Image computeTensor(const Image &im, float sigmaG=1, float factorSigma=4);
 
 vector <Point> HarrisCorners(const Image &im, float k=0.15, float sigmaG=1, float factorSigma=4, float maxiDiam=7, float boundarySize=5);

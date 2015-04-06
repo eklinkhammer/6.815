@@ -7,37 +7,175 @@ using namespace std;
 
 // Pset 07. Compute xx/xy/yy Tensor of an image.
 Image computeTensor(const Image &im, float sigmaG, float factorSigma) {
-  return Image(0);
+  int width = im.width();
+  int height = im.height();
+
+  Image lumiBlurred = getBlurredLumi(im, sigmaG);
+
+  Image gradX = gradientX(lumiBlurred);
+  Image gradY = gradientY(lumiBlurred);
+
+  Image M(width, height, 3);
+
+  float gradx, grady;
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++) {
+      gradx = gradX(i,j);
+      grady = gradY(i,j);
+      M(i,j,0) = gradx*gradx;
+      M(i,j,1) = gradx*grady;
+      M(i,j,2) = grady*grady;
+    }
+  }
+  Image blurredM = gaussianBlur_seperable(M, sigmaG*factorSigma);
+  return blurredM;
+
 }
 
 // Pset07. Compute Harris Corners.
 vector<Point> HarrisCorners(const Image &im, float k, float sigmaG, float factorSigma, float maxiDiam, float boundarySize) {
-  return vector<Point>();
+  vector<Point> points;
+  Image R = cornerResponse(im, k, sigmaG, factorSigma);
+  excludeCorners(R, boundarySize);
+
+  Image max = maximum_filter(R,maxiDiam);
+  for (int i = 0; i < R.width(); i++) {
+    for (int j = 0; j < R.height(); j++) {
+      if (R(i,j,0) > 0 && R(i,j,0) == max(i,j,0)) {
+        Point p(i,j);
+        points.push_back(p);
+      }
+    }
+  }
+  return points;
+}
+
+void excludeCorners(Image &im, float boundarySize) {
+  for (int i = 0; i < im.width(); i++) {
+    for (int j = 0; j < im.height(); j++) {
+      if (i < boundarySize || j < boundarySize || j + boundarySize > im.height() ||
+          i + boundarySize > im.width()) {
+        for (int k = 0; k < im.channels(); k++) {
+          im(i,j,k) = -1;
+        }
+      }
+    }
+  }
 }
 
 // Pset07. Compute response = det(M) - k*[(trace(M)^2)]
 Image cornerResponse(const Image &im, float k, float sigmaG, float factorSigma) {
-  return Image(0);
+  int width = im.width();
+  int height = im.height();
+  Image M = computeTensor(im, sigmaG, factorSigma);
+  Image R(width, height,1);
+  float det;
+  float trace, val;
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++) {
+      det = M(i,j,0) * M(i,j,2) - M(i,j,1)*M(i,j,1);
+      trace = M(i,j,0) + M(i,j,2);
+      val = det - k*trace*trace;
+      R(i,j,0) = val;
+    }
+  }
+  return R;
 }
 
 // Pset07. Descriptor helper function
 Image descriptor(const Image &blurredIm, Point p, float radiusDescriptor) {
-  return Image(0);
+  Image output(radiusDescriptor*2+1,radiusDescriptor*2+1,1);
+  int centerX = p.x;
+  int centerY = p.y;
+  int descriptX = 0, descriptY = 0;
+
+  
+  
+
+  for (int i = centerX - radiusDescriptor; i < centerX + radiusDescriptor + 1; i++) {
+    descriptY = 0;
+    for (int j = centerY - radiusDescriptor; j < centerY + radiusDescriptor + 1; j++) {
+      if (pixelInFrame(blurredIm, i, j)) {
+        output(descriptX,descriptY,0) = blurredIm(i,j,0);
+      }
+      descriptY++;
+    }
+    descriptX++;
+  }
+
+  float variance = output.var();
+  float mean = output.mean();
+  float std = sqrt(variance);
+
+  for (int i = 0; i < output.width(); i++) {
+    for (int j = 0; j < output.height(); j++) {
+        output(i,j,0) = (output(i,j,0) - mean) / std;
+    }
+  }
+  return output;
 }
 
 // Pset07. obtain corner features from a list of corners
 vector <Feature> computeFeatures(const Image &im, vector<Point> cornersL,
   float sigmaBlurDescriptor, float radiusDescriptor) {
-  return vector <Feature>();
+
+  Image lumiBlurred = getBlurredLumi(im, sigmaBlurDescriptor);
+  vector<Feature> features;
+  for (int i = 0; i < cornersL.size(); i++) {
+      Point p = cornersL[i];
+      Image descript = descriptor(lumiBlurred, p, radiusDescriptor);
+      Feature f(p, descript);
+      features.push_back(f);
+  }
+  return features;
 }
 
 // Pset07. SSD difference between features
 float l2Features(Feature &f1, Feature &f2) {
-  return 0;
+  Image im1 = f1.desc();
+  Image im2 = f2.desc();
+  float val = 0, diff;
+  for (int i = 0; i < im1.width(); i++) {
+    for (int j = 0; j < im1.height(); j++) {
+      diff = im1(i,j,0) - im2(i,j,0);
+      diff *= diff;
+      val += diff;
+    }
+  }
+  return val;
 }
 
 vector <Correspondance> findCorrespondences(vector<Feature> listFeatures1, vector<Feature> listFeatures2, float threshold) {
-  return vector <Correspondance>();
+    vector<Correspondance> cors;
+    //Feature f1, f2, fbest;
+    float min, secondMin, temp, score;
+    float square_threshold = threshold*threshold;
+    cout << "There are " << listFeatures1.size() << " features.\n";
+    for(int i = 0; i < listFeatures1.size(); i++) {
+      Feature f1 = listFeatures1[i];
+      Feature f2 = listFeatures2[0];
+      min = l2Features(f1, f2);
+      secondMin = min;
+      Feature fbest = f2;
+      for (int j = 1; j < listFeatures2.size(); j++) {
+        f2 = listFeatures2[j];
+        temp = l2Features(f1, f2);
+        if (temp < min) {
+          secondMin = min;
+          min = temp;
+          fbest = f2;
+        } else if (temp < secondMin) {
+          secondMin = temp;
+        }
+      }
+      score = secondMin / min;
+      if (score > square_threshold) {
+        Correspondance c(f1, fbest);
+        cors.push_back(c);
+      }
+    }
+
+  return cors;
 }
 
 // Pset07: Implement as part of RANSAC
@@ -65,7 +203,10 @@ Image autostitch(Image &im1, Image &im2, float blurDescriptor, float radiusDescr
  *****************************************************************************/
 
 Image getBlurredLumi(const Image &im, float sigmaG) {
-  return Image(0);
+  vector<Image> lumChrom = lumiChromi(im);
+  Image lumi = lumChrom[0];
+  Image lumiBlurred = gaussianBlur_seperable(im, sigmaG);
+  return lumiBlurred;
 }
 
 int countBoolVec(vector<bool> ins) {

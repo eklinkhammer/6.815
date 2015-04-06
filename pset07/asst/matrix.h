@@ -255,13 +255,15 @@ public:
             }
         }
 
+        double det = CalcDeterminant(in_array, rows());
+
         // deallocate
         for (int y=0; y<rows(); y++) {
             delete [] in_array[y];
         }
         delete [] in_array;
 
-        return CalcDeterminant(in_array, rows());
+        return det;
     }
 
     Matrix transpose(void) {

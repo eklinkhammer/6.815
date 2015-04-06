@@ -162,12 +162,12 @@ int main() {
   // If you want deterministic results, uncomment this line
   // srand(0); // Fixed seed for deterministic results
 
-  // testComputeTensor();
-  // testCornerResponse();
-  // testHarrisCorners();
-  // testDescriptor();
-  // testComputeFeatures();
-  // testFindCorrespondences();
+  //testComputeTensor();
+  //testCornerResponse();
+  //testHarrisCorners();
+  //testDescriptor();
+  //testComputeFeatures();
+  testFindCorrespondences();
   // testRANSAC();
   // testAutoStitch();
   // testAutoStitchBoston();
