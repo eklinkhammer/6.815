@@ -236,9 +236,23 @@ Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter, float ep
     }
   }
 
+  float listOfAllPairs[maxInliers][2][3];
+  int index = 0;
+  for (int i = 0; i < (int) inlies.size(); i++) {
+    if (inlies[i]) {
+      listOfCorrespondences[i].toListOfPairs(listOfAllPairs[index]);
+      index++;
+    }
+  }
   // least squares
-  // getting list of points where bool is true
-  // constructing nx9 matrix A
+  Matrix systm(2*maxInliers, 9);
+  for (int i = 0; i < maxInliers; i++) {
+    addConstraint9(systm, 2*i, listOfAllPairs[i]);
+  }
+  
+  Matrix A = systm.transpose().multiply(systm);
+  // Get eigenvector corresponding to smallest eigenvalue
+
   return HMax;
 }
 
@@ -282,6 +296,32 @@ Image autostitch(Image &im1, Image &im2, float blurDescriptor, float radiusDescr
 /******************************************************************************
  * Helpful optional functions to implement
  *****************************************************************************/
+
+void addConstraint9(Matrix &systm,  int i, const float constr[2][3]) {
+  float x, y, xp, yp;
+  x = constr[0][0];
+  xp = constr[1][0];
+  y = constr[0][1];
+  yp = constr[1][1];
+  systm(0,i)   = x;
+  systm(1,i)   = y;
+  systm(2,i)   = 1;
+  systm(3,i)   = 0;
+  systm(4,i)   = 0;
+  systm(5,i)   = 0;
+  systm(6,i)   = -x*xp;
+  systm(7,i)   = -y*xp;
+  systm(8,i)   = -xp;
+  systm(0,i+1) = 0;
+  systm(1,i+1) = 0;
+  systm(2,i+1) = 0;
+  systm(3,i+1) = x;
+  systm(4,i+1) = y;
+  systm(5,i+1) = 1;
+  systm(6,i+1) = -x*yp;
+  systm(7,i+1) = -y*yp;
+  systm(8,i+1) = -yp;
+}
 
 Image getBlurredLumi(const Image &im, float sigmaG) {
   vector<Image> lumChrom = lumiChromi(im);

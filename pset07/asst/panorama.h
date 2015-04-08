@@ -98,7 +98,7 @@ int countBoolVec(vector<bool> ins);
 /***********************************************************************
  * Helpful Functions, already implemented in Pset07 *
  ***********************************************************************/
-
+void addConstraint9(Matrix &systm,  int i, const float constr[2][3]);
 static const float color_init[3] = {1.0, 1.0, 1.0};
 static const vector<float> color_vinit(color_init, color_init + 3);
 Image visualizeCorners(const Image &im, vector<Point> pts, int rad=2, const vector<float> & color = color_vinit);
