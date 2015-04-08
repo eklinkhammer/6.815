@@ -228,6 +228,7 @@ Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter, float ep
       H = I;
     }
     vector<bool> inlies = inliers(H, listOfCorrespondences, epsilon);
+
     int countInliers = countBoolVec(inlies);
     if (countInliers > maxInliers) {
       maxInliers = countInliers;
@@ -236,21 +237,41 @@ Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter, float ep
     }
   }
 
+  cout << "The Homography that has the best match is: \n";
+  HMax.print();
+
+   for (int i = 0; i < (int) inliersMax.size(); i++) {
+     cout << inliersMax[i] << endl;
+   }
+
+   cout << "Max number of inliers: " << maxInliers << endl;
   float listOfAllPairs[maxInliers][2][3];
   int index = 0;
-  for (int i = 0; i < (int) inlies.size(); i++) {
-    if (inlies[i]) {
+  for (int i = 0; i < (int) inliersMax.size(); i++) {
+    if (inliersMax[i]) {
+      cout << i << endl;
       listOfCorrespondences[i].toListOfPairs(listOfAllPairs[index]);
       index++;
     }
   }
-  // least squares
+  
+  cout << "Reached the end of the listOfAllPairs section.\n";
+  // For the matrix system Ax = 0, x = H
+  //  A^TA h = 0
+  // H is the eigenvector with an eigenvalue of 0
+  // When doing a least squares estimation, H is the eigenvector with the 
+  // smallest eigenvalue
+  // Alternatively, H is the eigenvector with the largest eigenvalue of the 
+  // matrix (A^TA)^(-1)
   Matrix systm(2*maxInliers, 9);
   for (int i = 0; i < maxInliers; i++) {
+    cout << "Adding constraints at position " << i << endl;
     addConstraint9(systm, 2*i, listOfAllPairs[i]);
   }
   
-  Matrix A = systm.transpose().multiply(systm);
+  systm.print();
+
+  //Matrix A = systm.transpose().multiply(systm);
   // Get eigenvector corresponding to smallest eigenvalue
 
   return HMax;

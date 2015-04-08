@@ -167,10 +167,10 @@ int main() {
   //testHarrisCorners();
   //testDescriptor();
   //testComputeFeatures();
-  testFindCorrespondences();
-  // testRANSAC();
-  // testAutoStitch();
-  // testAutoStitchBoston();
+  //testFindCorrespondences();
+  testRANSAC();
+  //testAutoStitch();
+  //testAutoStitchBoston();
 
 
   // testVisualizeCorrespondenceInliers();
