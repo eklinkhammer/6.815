@@ -237,25 +237,22 @@ Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter, float ep
     }
   }
 
-  cout << "The Homography that has the best match is: \n";
-  HMax.print();
+  //cout << "The Homography that has the best match is: \n";
+  //
 
-   for (int i = 0; i < (int) inliersMax.size(); i++) {
-     cout << inliersMax[i] << endl;
-   }
+   // for (int i = 0; i < (int) inliersMax.size(); i++) {
+   //   cout << inliersMax[i] << endl;
+   // }
 
-   cout << "Max number of inliers: " << maxInliers << endl;
   float listOfAllPairs[maxInliers][2][3];
   int index = 0;
   for (int i = 0; i < (int) inliersMax.size(); i++) {
     if (inliersMax[i]) {
-      cout << i << endl;
       listOfCorrespondences[i].toListOfPairs(listOfAllPairs[index]);
       index++;
     }
   }
   
-  cout << "Reached the end of the listOfAllPairs section.\n";
   // For the matrix system Ax = 0, x = H
   //  A^TA h = 0
   // H is the eigenvector with an eigenvalue of 0
@@ -263,20 +260,82 @@ Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter, float ep
   // smallest eigenvalue
   // Alternatively, H is the eigenvector with the largest eigenvalue of the 
   // matrix (A^TA)^(-1)
-  Matrix systm(2*maxInliers, 9);
-  for (int i = 0; i < maxInliers; i++) {
-    cout << "Adding constraints at position " << i << endl;
-    addConstraint9(systm, 2*i, listOfAllPairs[i]);
-  }
-  
-  systm.print();
+ //  Matrix systm(9, 2*maxInliers);
+ //  for (int i = 0; i < maxInliers; i++) {
+ //    addConstraint9(systm, 2*i, listOfAllPairs[i]);
+ //  }
 
-  //Matrix A = systm.transpose().multiply(systm);
-  // Get eigenvector corresponding to smallest eigenvalue
+ //  //cout << "The system that is constructed is:\n";
+ // // systm.print();
 
+ //  Matrix A = (systm.transpose()).multiply(systm);
+
+ //  Matrix ATAInverse = A.inverse();
+
+ //  // Get eigenvector corresponding to largest eigenvector
+ //  // That is the homography matrix
+ //  //ATAInverse.print();
+
+ //  Matrix homoColumn(1,9);
+ //  homoColumn(0,0) = HMax(0,0);
+ //  homoColumn(0,1) = HMax(0,1);
+ //  homoColumn(0,2) = HMax(0,2);
+
+ //  homoColumn(0,3) = HMax(1,0);
+ //  homoColumn(0,4) = HMax(1,1);
+ //  homoColumn(0,5) = HMax(1,2);
+
+ //  homoColumn(0,6) = HMax(2,0);
+ //  homoColumn(0,7) = HMax(2,1);
+ //  homoColumn(0,8) = HMax(2,2);
+ //  Matrix x = leastSquares(ATAInverse, homoColumn);
+ //  //x.print();
+ //  Matrix result(3,3);
+ //  result(0,0) = x(0,0) / x(0,8);
+ //  result(1,0) = x(0,1)/ x(0,8);
+ //  result(2,0) = x(0,2)/ x(0,8);
+ //  result(0,1) = x(0,3)/ x(0,8);
+ //  result(1,1) = x(0,4)/ x(0,8);
+ //  result(2,1) = x(0,5)/ x(0,8);
+ //  result(0,2) = x(0,6)/ x(0,8);
+ //  result(1,2) = x(0,7)/ x(0,8);
+ //  result(2,2) = x(0,8)/ x(0,8);
+
+ //  result.print();
   return HMax;
 }
 
+Matrix leastSquares(Matrix A, Matrix b) {
+  int NUM_SIMULATIONS = 10;
+  //Matrix b(1, A.rows());
+
+  // // init b to 1's
+  // for (int i = 0; i < A.rows(); i++) {
+  //   b(0, i) = 1;
+  // }
+
+  //b.print();
+
+  for (int i = 0; i < NUM_SIMULATIONS; i++) {
+    Matrix nextB = A.multiply(b);
+
+    float norm = 0;
+    for (int j = 0; j < A.rows(); j++) {
+      norm += pow(nextB(0,j), 2);
+    }
+    norm = sqrt(norm);
+
+    for (int j = 0; j < A.rows(); j++) {
+      b(0,j) = nextB(0,j) / norm;
+    }
+
+  }
+
+  for (int i = 0; i < A.rows(); i++) {
+    b(0,i) = 1 / b(0,i);
+  }
+  return b;
+}
 Image autostitch(Image &im1, Image &im2, float blurDescriptor, float radiusDescriptor) {
 
     // get and output features

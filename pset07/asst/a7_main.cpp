@@ -153,6 +153,12 @@ void testAutoStitchBoston() {
   autostitch(stata1, stata2).write("./Output/boston-skyline-final-stitch.png");
 }
 
+void testAutoStitchScience() {
+  Image stata1("./Input/science-1.png");
+  Image stata2("./Input/science-2.png");
+  autostitch(stata1, stata2).write("./Output/science-final-stitch.png");
+}
+
 // Your code **has to compile** on the submission system with all of the test cases
 // uncommented! We will not grade the contents of this main function
 int main() {
@@ -162,15 +168,16 @@ int main() {
   // If you want deterministic results, uncomment this line
   // srand(0); // Fixed seed for deterministic results
 
-  //testComputeTensor();
-  //testCornerResponse();
-  //testHarrisCorners();
-  //testDescriptor();
-  //testComputeFeatures();
-  //testFindCorrespondences();
+  testComputeTensor();
+  testCornerResponse();
+  testHarrisCorners();
+  testDescriptor();
+  testComputeFeatures();
+  testFindCorrespondences();
   testRANSAC();
-  //testAutoStitch();
-  //testAutoStitchBoston();
+  testAutoStitch();
+  testAutoStitchBoston();
+  testAutoStitchScience();
 
 
   // testVisualizeCorrespondenceInliers();
