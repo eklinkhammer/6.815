@@ -15,11 +15,8 @@ using namespace std;
 
 // panorama.h
 // Assignment 7
-
 typedef float (&array423)[4][2][3];
 typedef float (&array23)[2][3];
-
-
 
 // Point and Feature classes, already implemented for Pset07
 // N.B. Need "Rule of three" here since these objects are used in vectors
@@ -35,7 +32,6 @@ public:
   ~Point() {}; // Destructor. printf("Destroying Point\n");
 };
 
-
 class Feature {
 public:
   Feature(Point &ptp, Image &descp); // Constructor
@@ -49,7 +45,6 @@ private:
   Point *pt;
   Image *dsc; // 9x9 descriptor
 };
-
 
 class Correspondance {
 public:
@@ -66,6 +61,8 @@ private:
 };
 
 // Pset07: Harris Corners
+void zeroOrMax(Image &R, float maxiDiam);
+void excludeCorners(Image &im, float boundarySize);
 Image computeTensor(const Image &im, float sigmaG=1, float factorSigma=4);
 
 vector <Point> HarrisCorners(const Image &im, float k=0.15, float sigmaG=1, float factorSigma=4, float maxiDiam=7, float boundarySize=5);
@@ -78,12 +75,16 @@ vector <Feature> computeFeatures(const Image &im, vector<Point> cornersL, float 
 
 // Pset07: Correspondances
 float l2Features(Feature &f1, Feature &f2);
+
 vector <Correspondance> findCorrespondences(vector<Feature> listFeatures1, vector<Feature> listFeatures2, float threshold=1.7);
 
 // Pset07: RANSAC
 vector<bool> inliers(Matrix H, vector <Correspondance> listOfCorrespondences, float epsilon=4);
+
 Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter=200, float epsilon=4);
+
 vector<Correspondance> sampleCorrespondances(vector <Correspondance> listOfCorrespondences);
+
 void getListOfPairs(vector <Correspondance> listOfCorrespondences, array423 listOfPairs);
 
 // PSet07: Final stitching
@@ -91,12 +92,14 @@ Image autostitch(Image &im1, Image &im2, float blurDescriptor=0.5, float radiusD
 
 // potentially useful function, optional to implement
 Image getBlurredLumi(const Image &im, float sigmaG);
+
 int countBoolVec(vector<bool> ins);
 
 /***********************************************************************
  * Helpful Functions, already implemented in Pset07 *
  ***********************************************************************/
-
+void addConstraint9(Matrix &systm,  int i, const float constr[2][3]);
+Matrix leastSquares(Matrix A, Matrix b);
 static const float color_init[3] = {1.0, 1.0, 1.0};
 static const vector<float> color_vinit(color_init, color_init + 3);
 Image visualizeCorners(const Image &im, vector<Point> pts, int rad=2, const vector<float> & color = color_vinit);
