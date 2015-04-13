@@ -1,0 +1,35 @@
+BIN_DIR	:= bin
+CP		:= cp -rf
+RM		:= rm -f
+CXX		:= g++ -std=c++11
+
+HALIDE_INC := include
+HALIDE_LIB := bin/libHalide.a
+
+SRC :=	tutorial/lesson_01_basics.cpp \
+		tutorial/lesson_02_input_image.cpp \
+		tutorial/lesson_03_debugging_1.cpp \
+		tutorial/lesson_04_debugging_2.cpp \
+		tutorial/lesson_05_scheduling_1.cpp \
+		tutorial/lesson_06_realizing_over_shifted_domains.cpp \
+		tutorial/lesson_07_multi_stage_pipelines.cpp \
+		tutorial/lesson_08_scheduling_2.cpp \
+		tutorial/lesson_09_update_definitions.cpp \
+		tutorial/lesson_11_cross_compilation.cpp \
+		tutorial/lesson_12_using_the_gpu.cpp
+
+APPS := $(addprefix $(BIN_DIR)/,$(notdir $(SRC:.cpp=)))
+
+all: $(APPS)
+	$(CP) tutorial/images $(BIN_DIR)
+
+CXXFLAGS ?=
+LDFLAGS  ?=
+CXXFLAGS += -I$(HALIDE_INC) -I. -g -Wall
+LDFLAGS  += -lz -lpthread -ldl -lncurses -lpng
+
+$(BIN_DIR)/%: tutorial/%.cpp $(HALIDE_LIB) $(HALIDE_INC)
+	$(CXX) $(CXXFLAGS) $< $(HALIDE_LIB) $(LDFLAGS) -o $@
+
+clean:
+	$(RM) $(APPS)

@@ -1,0 +1,3 @@
+For more Boston skyline pictures, see
+"Boston Timescape Dataset"
+http://www.mit.edu/~adalca/proj/boston/small_1/
