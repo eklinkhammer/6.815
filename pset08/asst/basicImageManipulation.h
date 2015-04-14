@@ -6,7 +6,9 @@ using namespace std;
 #include "Image.h"
 #include <iostream>
 #include <math.h>
-
+// copies all values in a pixel from source to dest. 
+void copyAllChannels (const Image &source, Image &dest, int sX, int sY, int dX, int dY, bool bilinear);
+bool pixelInFrame (const Image &im, int x, int y);
 // Functions from PS01
 Image changeGamma(const Image & im, const double & old_gamma, const double & new_gamma);
 Image exposure(const Image &im, const float &factor);

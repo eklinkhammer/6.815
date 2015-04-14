@@ -25,8 +25,21 @@ Image stitchLinearBlending(const Image &im1, const Image &im2, const Image &we1,
  *****************************************************************************/
 
 // PSet 08 weight image
+// Single channel weight image
+// Separable in x and y, weights are proportional to distance
+//  from middle
 Image blendingweight(int imwidth, int imheight) {
-  return Image(imwidth, imheight, 1);
+  float midX = (float) imwidth / 2.0;
+  float midY = (float) imheight / 2.0;
+  Image weights(imwidth, imheight, 1);
+  for (int i = 0; i < imwidth; i++) {
+    for (int j = 0; j < imheight; j++) {
+      float x = (midX - fabs(midX -  (float) i)) / midX;
+      float y = (midY - fabs(midY -  (float) j)) / midY;
+      weights(i,j,0) = x*y;
+    }
+  }
+  return weights;
 }
 
 // Optional: low freq and high freq (2-scale) decomposition

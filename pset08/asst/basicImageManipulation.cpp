@@ -5,7 +5,24 @@
 using namespace std;
 
 
+// copies all values in a pixel from source to dest. 
+void copyAllChannels (const Image &source, Image &dest, int sX, int sY, int dX, int dY, bool bilinear) {
+    int channels = source.channels();
+    if (channels != dest.channels()) {
+        throw MismatchedDimensionsException();
+    }
+    if (pixelInFrame(source, sX, sY) && pixelInFrame(dest, dX, dY)) {
+        for (int c = 0; c < channels; c++) {
+            dest(dX, dY, c) = source.smartAccessor(sX,sY,c, bilinear);
+        }
+    }
+}
 
+
+
+  bool pixelInFrame (const Image &im, int x, int y) {
+    return (x < im.width() && x >= 0 && y < im.height() && y >= 0);
+  }
 
 /**************************************************************
  //               DON'T EDIT BELOW THIS LINE                //
