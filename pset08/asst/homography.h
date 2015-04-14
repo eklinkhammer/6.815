@@ -28,6 +28,7 @@ vector <float> bboxUnion(vector<float> B1, vector<float> B2);
 
 // stitching
 Image stitch(const Image &im1, const Image &im2, const float listOfPairs[4][2][3]);
+Image stitch(const Image &im1, const Image &im2, Matrix H);
 
 
 

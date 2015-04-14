@@ -109,21 +109,21 @@ void testAutoStitchNCastle() {
 int main() {
 
   // Blending
-  testBlendingWeight();
-  testApplyHomographyBlend();
-  testStitchBlendStata();
+  //testBlendingWeight();
+  //testApplyHomographyBlend();
+  //testStitchBlendStata();
 
   // AutoStitch with Blending
-  testAutoStitchBlendStata();
-  testAutoStitchBlendBoston();
-  testAutoStitchBlendCastle();
+  //testAutoStitchBlendStata();
+  //testAutoStitchBlendBoston();
+  //testAutoStitchBlendCastle();
 
   // Planet
   testPano2Planet();
 
   // N - stitch
-  testAutoStitchNBoston();
-  testAutoStitchNCastle();
+  //testAutoStitchNBoston();
+  //testAutoStitchNCastle();
 
   return 0;
 }

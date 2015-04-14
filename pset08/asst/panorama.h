@@ -84,6 +84,7 @@ vector<bool> inliers(Matrix H, vector <Correspondance> listOfCorrespondences, fl
 Matrix RANSAC(vector <Correspondance> listOfCorrespondences, int Niter=200, float epsilon=4);
 
 vector<Correspondance> sampleCorrespondances(vector <Correspondance> listOfCorrespondences);
+Matrix getH(Image &im1, Image &im2, float blurDescriptor, float radiusDescriptor);
 
 void getListOfPairs(vector <Correspondance> listOfCorrespondences, array423 listOfPairs);
 

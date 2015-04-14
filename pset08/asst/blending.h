@@ -38,5 +38,9 @@ Image autostitchN(vector<Image> ims, int refIndex, float blurDescriptor=0.5, flo
 Image copychannels(const Image &im, int nChannels);
 Matrix eye(int n);
 vector <Matrix> stackHomographies(vector <Matrix> Hs, int refIndex);
+Image create_output(Matrix T, vector<float> bBox, int channels);
+vector<float> getBBox(const Image &im1, const Image &im2, Matrix H);
+void applyhomographyBlendHF(const Image &highFreq1, const Image &highFreq2, const Image &we1, const Image &we2, Matrix T, Matrix TH, Image out, bool bilinear);
+Image safeDivide(Image &im1, Image &im2);
 
 #endif

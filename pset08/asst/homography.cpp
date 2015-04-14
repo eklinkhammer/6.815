@@ -1,5 +1,6 @@
 #include "homography.h"
 #include "matrix.h"
+#include "blending.h"
 
 using namespace std;
 
@@ -214,22 +215,13 @@ vector <float> bboxUnion(vector<float> B1, vector<float> B2) {
 // PS06: stitch two images given a list or 4 point pairs
 Image stitch(const Image &im1, const Image &im2, const float listOfPairs[4][2][3]) {
   Matrix H = computeHomography(listOfPairs);
-  vector<float> bbox1 = computeTransformedBBox(im1.width(),im1.height(),H);
-  vector<float> bbox2;
-  bbox2.push_back(0.0);
-  bbox2.push_back( (float)(im2.width() - 1) );
-  bbox2.push_back(0.0);
-  bbox2.push_back( (float)(im2.height() - 1) );
+  return stitch(im1, im2, H);
+}
 
-  vector<float> bBox = bboxUnion(bbox1, bbox2);
-
+Image stitch(const Image &im1, const Image &im2, Matrix H) {
+  vector<float> bBox = getBBox(im1, im2, H);
   Matrix T = translate(bBox);
-  float tx = T(2,0);
-  float ty = T(2,1);
-
-  int im3Height = bBox[3] + (int) ty;
-  int im3Width = bBox[1] + (int) tx;
-  Image im3(im3Width, im3Height,im1.channels());
+  Image im3 = create_output(T, bBox, im1.channels());
 
   Matrix TH = T.multiply(H);
 
@@ -237,7 +229,6 @@ Image stitch(const Image &im1, const Image &im2, const float listOfPairs[4][2][3
   applyhomography(im1, im3, TH, true);
   return im3;
 }
-
 // PS06: useful for bounding-box debugging.
 Image drawBoundingBox(const Image &im, vector<float> minmax) {
   Image output(im.width(), im.height(), im.channels());

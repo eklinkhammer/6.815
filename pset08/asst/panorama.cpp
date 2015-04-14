@@ -2,6 +2,7 @@
 #include "matrix.h"
 #include <unistd.h>
 #include <ctime>
+#include "blending.h"
 
 using namespace std;
 
@@ -337,40 +338,8 @@ Matrix leastSquares(Matrix A, Matrix b) {
   return b;
 }
 Image autostitch(Image &im1, Image &im2, float blurDescriptor, float radiusDescriptor) {
-
-    // get and output features
-  vector<Point> h1 = HarrisCorners(im1);
-  vector<Feature> f1 = computeFeatures(im1, h1);
-  vector<Point> h2 = HarrisCorners(im2);
-  vector<Feature> f2 = computeFeatures(im2, h2);
-
-  // correspondances
-  vector<Correspondance> corr = findCorrespondences(f1, f2);
-
-  Matrix H = RANSAC(corr, 100);
-
-  vector<float> bbox1 = computeTransformedBBox(im1.width(),im1.height(),H);
-  vector<float> bbox2;
-  bbox2.push_back(0.0);
-  bbox2.push_back( (float)(im2.width() - 1) );
-  bbox2.push_back(0.0);
-  bbox2.push_back( (float)(im2.height() - 1) );
-
-  vector<float> bBox = bboxUnion(bbox1, bbox2);
-
-  Matrix T = translate(bBox);
-  float tx = T(2,0);
-  float ty = T(2,1);
-
-  int im3Height = bBox[3] + (int) ty;
-  int im3Width = bBox[1] + (int) tx;
-  Image im3(im3Width, im3Height,im1.channels());
-
-  Matrix TH = T.multiply(H);
-
-  applyhomography(im2, im3, T, true);
-  applyhomography(im1, im3, TH, true);
-  return im3;
+  Matrix H = getH(im1, im2, blurDescriptor, radiusDescriptor);
+  return stitch(im1, im2, H);
 }
 
 /******************************************************************************
@@ -421,6 +390,19 @@ int countBoolVec(vector<bool> ins) {
   return count;
 }
 
+
+Matrix getH(Image &im1, Image &im2, float blurDescriptor, float radiusDescriptor) {
+  vector<Point> h1 = HarrisCorners(im1);
+  vector<Feature> f1 = computeFeatures(im1, h1, blurDescriptor, radiusDescriptor);
+  vector<Point> h2 = HarrisCorners(im2);
+  vector<Feature> f2 = computeFeatures(im2, h2, blurDescriptor, radiusDescriptor);
+
+  // correspondances
+  vector<Correspondance> corr = findCorrespondences(f1, f2);
+
+  Matrix H = RANSAC(corr, 100);
+  return H;
+}
 /******************************************************************************
  * Do Not Modify Below This Point
  *****************************************************************************/
