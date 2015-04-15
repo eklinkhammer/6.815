@@ -160,7 +160,7 @@ Image autostitch(Image &im1, Image &im2, int blend, float blurDescriptor, float 
 Image pano2planet(const Image &pano, int newImSize, bool clamp) {
   Image out(newImSize, newImSize, pano.channels());
   float mid = (float) newImSize / 2.0;
-  float rmax = sqrt(2*newImSize*newImSize);
+  float rmax = sqrt(2)*mid;
   for (int i = 0; i < newImSize; i++) {
     for (int j = 0; j < newImSize; j++) {
       float newX = (float) i - mid;
@@ -168,9 +168,33 @@ Image pano2planet(const Image &pano, int newImSize, bool clamp) {
       float theta = atan2(newY, newX);
       float r = newY*newY + newX*newX;
       r = sqrt(r);
-      theta = theta < 0 ? theta + 2*pi : theta;
-      float xPan = theta / (2*pi) * newImSize;
-      float yPan = (rmax - r) / rmax * newImSize;
+
+      // we have the r's and theta's of the output
+      // now, we scale the r to the size of the output
+      // theta = 0 -> right side -> xPan = w
+      // theta = pi -> center -> xPan = w/2
+      // (1 - theta / pi) w/2 + w/2 
+
+      // theta = -pi -> center -> xPan = w/2
+      // theta = -0 -> left side -> xPan = 0
+      // (theta / pi) w/2
+
+      //size of r is height of image (from bottom)
+      // r = 0 -> y = h
+      // r = max -> y = 0
+      // r = 1/2 max -> y = 1/2 max
+      float xPan;
+      int panWidth = pano.width();
+      if (theta > 0) {
+        xPan = (1 - theta / pi) * (panWidth / 2) + panWidth / 2;
+      } else {
+        xPan =  -1* (theta / pi) * (panWidth / 2);
+      }
+      float yPan = (1 - r / rmax) * pano.height();
+      // cout << "For output values " << i << ", " << j << " in an image of size " << newImSize << endl;
+      // cout << "newX: " << newX << "\tnewY: " << newY << endl;
+      // cout << "theta: " << theta << "\tr: " << r << endl;
+      // cout << "xPan: " << xPan << "\tyPan: " << yPan << " in an image of size (" << pano.width() << ", " << pano.height() << endl << endl;;
       for (int c = 0; c < pano.channels(); c++) {
         out(i,j,c) = interpolateLin(pano, xPan, yPan, c, true);
       }
